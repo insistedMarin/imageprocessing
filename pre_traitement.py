@@ -88,8 +88,7 @@ def preprocess(image_input):
     # cv.destroyAllWindows()
 
 
-x_real = np.load('x_real.npz')['data'][:500:]
-y_real = np.load('y_real.npy')[:500:]
+
 
 
 def transfer(data):
@@ -98,10 +97,22 @@ def transfer(data):
         result.append(preprocess(data[i].squeeze()))
     return np.array(result)
 
+x_real = np.load('x_real.npz')['data'][:500:]
+y_real = np.load('y_real.npy')[:500:]
+
+grayHist = calcGrayHist(x_real[0].squeeze())
 
 x_train = transfer(x_real)
-
 print(x_train.shape)
+x_range = range(256)
+plt.plot(x_range, grayHist, 'r', linewidth=2)
+plt.figure("Image")
+plt.imshow(x_real[0], cmap='gray')
+plt.title('origin')
+plt.show()
+plt.imshow(x_train[0], cmap='gray')
+plt.title('skeleton')
+plt.show()
 # plt.figure("Image")
 # plt.imshow(x_train[0], cmap='gray')
 # plt.title('skeleton')
