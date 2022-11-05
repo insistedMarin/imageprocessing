@@ -1,5 +1,7 @@
 import cv2 as cv
 import numpy as np
+import tensorflow as tf
+from tensorflow import keras
 import matplotlib.pyplot as plt
 from skimage import morphology
 import keras
@@ -9,6 +11,7 @@ from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 from imgaug import augmenters as iaa
 import random
+from keras import optimizers
 
 
 # print(x_real.shape, y_real.shape)
@@ -88,14 +91,12 @@ def preprocess(image_input):
     # cv.destroyAllWindows()
 
 
-
-
-
 def transfer(data):
     result = []
     for i in range(data.shape[0]):
         result.append(preprocess(data[i].squeeze()))
     return np.array(result)
+
 
 x_real = np.load('x_real.npz')['data'][:500:]
 y_real = np.load('y_real.npy')[:500:]
@@ -105,31 +106,33 @@ grayHist = calcGrayHist(x_real[0].squeeze())
 x_train = transfer(x_real)
 print(x_train.shape)
 x_range = range(256)
-#plt.plot(x_range, grayHist, 'r', linewidth=2)
-#plt.figure("Image")
-#plt.imshow(x_real[0], cmap='gray')
-#plt.title('origin')
-#plt.show()
-new_x_train = x_train[0]*(1/255)
+# plt.plot(x_range, grayHist, 'r', linewidth=2)
+# plt.figure("Image")
+# plt.imshow(x_real[0], cmap='gray')
+# plt.title('origin')
+# plt.show()
+new_x_train = x_train[0] * (1 / 255)
 
-print(np.shape(new_x_train))
 
-def neighbour(L,x,y):
-    nb_neighbour=0
+# print(np.shape(new_x_train))
+
+
+def neighbour(L, x, y):
+    nb_neighbour = 0
     height, width = np.shape(L)
-    for i in range (-1,2):
-        for j in range (-1,2):
-            nb_neighbour+= L[x+i][y+j]
+    for i in range(-1, 2):
+        for j in range(-1, 2):
+            nb_neighbour += L[x + i][y + j]
 
-    return nb_neighbour-L[x][y]
+    return nb_neighbour - L[x][y]
+
 
 ###
-#Commentaire
+# Commentaire
 plt.imshow(x_train[0], cmap='gray')
 plt.title('skeleton')
-#ça arrête le programme ici
+# ça arrête le programme ici
 plt.show()
-
 
 
 # plt.figure("Image")
@@ -137,54 +140,60 @@ plt.show()
 # plt.title('skeleton')
 # plt.show()
 
-#Permet d'obtenir à partir de la matrice d'origine, la matrice CN
+# Permet d'obtenir à partir de la matrice d'origine, la matrice CN
 def crossing_number(Matrice):
     height, width = np.shape(Matrice)
-    L = np.zeros((height,width))
-    transition =[]
-    terminaison=[]
-    bifurcation=[]
-    for i in range (1,height-1):
-        for j in range (1,width-1):
-            if (neighbour(Matrice,i,j)==1):
-                terminaison.append([i,j])
-                L[i][j]=255
-            elif(neighbour(Matrice,i,j)==2):
-                transition.append([i,j])
-            elif(neighbour(Matrice,i,j)>2):
-                bifurcation.append([i,j])
-    return (L,terminaison,transition,bifurcation)
-#Permet d'obtenir les terminaisons
+    L = np.zeros((height, width))
+    transition = []
+    terminaison = []
+    bifurcation = []
+    for i in range(1, height - 1):
+        for j in range(1, width - 1):
+            if (neighbour(Matrice, i, j) == 1):
+                terminaison.append([i, j])
+                L[i][j] = 255
+            elif (neighbour(Matrice, i, j) == 2):
+                transition.append([i, j])
+            elif (neighbour(Matrice, i, j) > 2):
+                bifurcation.append([i, j])
+    return (L, terminaison, transition, bifurcation)
+
+
+# Permet d'obtenir les terminaisons
 def extration_terminaison(Matrice):
     height, width = np.shape(Matrice)
-    L = np.zeros((height,width))
-    for i in range (1,height-1):
-        for j in range (1,width-1):
-            if (neighbour(Matrice,i,j)==1):
-                L[i][j]=255
+    L = np.zeros((height, width))
+    for i in range(1, height - 1):
+        for j in range(1, width - 1):
+            if (neighbour(Matrice, i, j) == 1):
+                L[i][j] = 255
     return L
-#Permet d'obtenir les transitions
+
+
+# Permet d'obtenir les transitions
 def extration_transition(Matrice):
     height, width = np.shape(Matrice)
-    L = np.zeros((height,width))
-    for i in range (1,height-1):
-        for j in range (1,width-1):
-            if (neighbour(Matrice,i,j)==2):
-                L[i][j]=255
+    L = np.zeros((height, width))
+    for i in range(1, height - 1):
+        for j in range(1, width - 1):
+            if (neighbour(Matrice, i, j) == 2):
+                L[i][j] = 255
     return L
-#Permet d'obtenir les bifucations
+
+
+# Permet d'obtenir les bifucations
 def extration_bifurcation(Matrice):
     height, width = np.shape(Matrice)
-    L = np.zeros((height,width))
-    for i in range (1,height-1):
-        for j in range (1,width-1):
-            if (neighbour(Matrice,i,j)>2):
-                L[i][j]=255
+    L = np.zeros((height, width))
+    for i in range(1, height - 1):
+        for j in range(1, width - 1):
+            if (neighbour(Matrice, i, j) > 2):
+                L[i][j] = 255
     return L
 
-#print(new_x_train[5])
-Nouveau, terminaison, transition, bifurcation= crossing_number(new_x_train)
 
+print(np.shape(new_x_train))
+Nouveau, terminaison, transition, bifurcation = crossing_number(new_x_train)
 
 # image = x_real[0].squeeze()
 # preprocess(image)
@@ -195,3 +204,46 @@ Nouveau, terminaison, transition, bifurcation= crossing_number(new_x_train)
 # print(y_real[0])
 # print(y_real[1])
 # print(y_real[20])
+
+# ====================
+# coding = utf-8
+
+# Prepare data X_train: ndarray,(60000, 28, 28) y_train: ndarray, (60000,)
+y_val = np.zeros(20)
+y_val[0:10] = 0
+y_val[10:20] = 1
+x_val = x_real[:20:]
+
+(x_train, y_train) = (x_val, y_val)
+
+# Build model
+model = keras.Sequential([
+    keras.layers.Flatten(input_shape=(None, 90, 90)),  # input layer
+    keras.layers.Dense(128, activation='relu'),  # hidden layer
+    keras.layers.Dense(10, activation='softmax')  # output layer
+])
+
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+optimizers.Adam(lr=0.1)
+
+# Train model
+model.fit(x_train, y_train, epochs=100)
+
+# Evaluate model
+# valid_loss, valid_acc = model.evaluate(x_train, y_train, verbose=1)
+# print(f"Valid loss:{valid_loss}")
+# print(f"Valid accuracy:{valid_acc}")
+
+# Make one prediction
+class_names = ['第一个人', '第二个人']
+y_predicts = model.predict(x_train[0])
+print(y_predicts[0])
+y_index = np.argmax(y_predicts[0])
+print(y_index)
+y_label = class_names[y_index]
+print(y_label)
+
+# ====================
