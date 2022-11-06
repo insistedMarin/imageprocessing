@@ -116,19 +116,17 @@ print(np.shape(new_x_train))
 
 def neighbour(L,x,y):
     nb_neighbour=0
-    height, width = np.shape(L)
-    for i in range (-1,2):
-        for j in range (-1,2):
-            nb_neighbour+= L[x+i][y+j]
-
-    return nb_neighbour-L[x][y]
+    if (L[x][y]==1):
+        for i in range (-1,2):
+            for j in range (-1,2):
+                nb_neighbour+= L[x+i][y+j]
+        return nb_neighbour-L[x][y]
+    else:
+        return 0
 
 ###
 #Commentaire
-plt.imshow(x_train[0], cmap='gray')
-plt.title('skeleton')
-#ça arrête le programme ici
-plt.show()
+
 
 
 
@@ -148,12 +146,16 @@ def crossing_number(Matrice):
         for j in range (1,width-1):
             if (neighbour(Matrice,i,j)==1):
                 terminaison.append([i,j])
-                L[i][j]=255
+                L[i][j]=2
             elif(neighbour(Matrice,i,j)==2):
                 transition.append([i,j])
+                L[i][j]=1
             elif(neighbour(Matrice,i,j)>2):
                 bifurcation.append([i,j])
-    return (L,terminaison,transition,bifurcation)
+                L[i][j]=3
+    return (L)
+
+    
 #Permet d'obtenir les terminaisons
 def extration_terminaison(Matrice):
     height, width = np.shape(Matrice)
@@ -161,7 +163,7 @@ def extration_terminaison(Matrice):
     for i in range (1,height-1):
         for j in range (1,width-1):
             if (neighbour(Matrice,i,j)==1):
-                L[i][j]=255
+                L[i][j]=1
     return L
 #Permet d'obtenir les transitions
 def extration_transition(Matrice):
@@ -178,13 +180,23 @@ def extration_bifurcation(Matrice):
     L = np.zeros((height,width))
     for i in range (1,height-1):
         for j in range (1,width-1):
-            if (neighbour(Matrice,i,j)>2):
-                L[i][j]=255
+            if (neighbour(Matrice,i,j)>3):
+                L[i][j]=1
     return L
 
 #print(new_x_train[5])
-Nouveau, terminaison, transition, bifurcation= crossing_number(new_x_train)
+#Nouveau, terminaison, transition, bifurcation= crossing_number(new_x_train)
 
+
+plt.imshow(crossing_number(new_x_train))
+plt.title('Schema')
+plt.legend()
+plt.show()
+#ça arrête le programme ici
+plt.imshow(new_x_train)
+plt.title('skeleton')
+#ça arrête le programme ici
+plt.show()
 
 # image = x_real[0].squeeze()
 # preprocess(image)
