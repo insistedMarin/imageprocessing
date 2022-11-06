@@ -104,7 +104,7 @@ y_real = np.load('y_real.npy')[:500:]
 grayHist = calcGrayHist(x_real[0].squeeze())
 
 x_train = transfer(x_real)
-print(x_train.shape)
+# print(x_train.shape)
 x_range = range(256)
 # plt.plot(x_range, grayHist, 'r', linewidth=2)
 # plt.figure("Image")
@@ -196,7 +196,7 @@ def extration_bifurcation(Matrice):
 
 
 # print(np.shape(new_x_train))
-print(crossing_number(new_x_train))
+# print(crossing_number(new_x_train))
 # plt.imshow(crossing_number(new_x_train))
 plt.title('CN')
 plt.show()
@@ -224,7 +224,7 @@ x_train_2 = x_train[:20:] * (1 / 255)
 
 X_input = np.zeros((20, 90, 90))
 
-print(crossing_number(x_train_2[0]))
+# print(crossing_number(x_train_2[0]))
 
 
 def transfer2(data):
@@ -235,6 +235,7 @@ def transfer2(data):
 
 
 x_input = transfer2(x_train_2)
+
 # plt.imshow(x_input[0])
 # plt.imshow(crossing_number(x_input[0]))
 # plt.show()
@@ -244,10 +245,16 @@ x_input = transfer2(x_train_2)
 
 (x_train, y_train) = (x_input, y_input)
 
+
+#  ====================
+
+# ====================
 # Build model
 model = keras.Sequential([
     keras.layers.Flatten(input_shape=(90, 90)),  # input layer
     keras.layers.Dense(128, activation='relu'),  # hidden layer
+    keras.layers.Dropout(0.2),
+    keras.layers.BatchNormalization(),
     keras.layers.Dense(2, activation='softmax')  # output layer
 ])
 
@@ -255,18 +262,20 @@ model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
-optimizers.Adam(lr=0.1)
+# optimizers.Adam(lr=0.1)
+
+model.summary()
 
 # Train model
 # print(x_input.shape)
-model.fit(x_input, y_input, epochs=100)
+model.fit(x_input, y_input, epochs=10)
 
 # Evaluate model
 # valid_loss, valid_acc = model.evaluate(x_train, y_train, verbose=1)
 # print(f"Valid loss:{valid_loss}")
 # print(f"Valid accuracy:{valid_acc}")
 
-# Make one prediction
+# # Make one prediction
 class_names = ['第一个人', '第二个人']
 y_predicts = model.predict(x_input[0])
 print(y_predicts[0])
@@ -274,5 +283,5 @@ y_index = np.argmax(y_predicts[0])
 print(y_index)
 y_label = class_names[y_index]
 print(y_label)
-
-# ====================
+#
+# # ====================
