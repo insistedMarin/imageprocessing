@@ -119,17 +119,18 @@ new_x_train = x_train[0] * (1 / 255)
 
 def neighbour(L, x, y):
     nb_neighbour = 0
-    height, width = np.shape(L)
-    for i in range(-1, 2):
-        for j in range(-1, 2):
-            nb_neighbour += L[x + i][y + j]
-
-    return nb_neighbour - L[x][y]
+    if (L[x][y] == 1):
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                nb_neighbour += L[x + i][y + j]
+        return nb_neighbour - L[x][y]
+    else:
+        return 0
 
 
 ###
 # Commentaire
-plt.imshow(x_train[0], cmap='gray')
+# plt.imshow(x_train[0], cmap='gray')
 plt.title('skeleton')
 # ça arrête le programme ici
 plt.show()
@@ -149,14 +150,16 @@ def crossing_number(Matrice):
     bifurcation = []
     for i in range(1, height - 1):
         for j in range(1, width - 1):
-            if (neighbour(Matrice, i, j) == 1):
+            if neighbour(Matrice, i, j) == 1:
                 terminaison.append([i, j])
-                L[i][j] = 255
-            elif (neighbour(Matrice, i, j) == 2):
+                L[i][j] = 1
+            elif neighbour(Matrice, i, j) == 2:
                 transition.append([i, j])
-            elif (neighbour(Matrice, i, j) > 2):
+                L[i][j] = 0
+            elif neighbour(Matrice, i, j) > 2:
                 bifurcation.append([i, j])
-    return (L, terminaison, transition, bifurcation)
+                L[i][j] = 3
+    return L
 
 
 # Permet d'obtenir les terminaisons
@@ -192,9 +195,11 @@ def extration_bifurcation(Matrice):
     return L
 
 
-print(np.shape(new_x_train))
-Nouveau, terminaison, transition, bifurcation = crossing_number(new_x_train)
-
+# print(np.shape(new_x_train))
+print(crossing_number(new_x_train))
+# plt.imshow(crossing_number(new_x_train))
+plt.title('CN')
+plt.show()
 # image = x_real[0].squeeze()
 # preprocess(image)
 # image = x_real[1].squeeze()
@@ -209,18 +214,41 @@ Nouveau, terminaison, transition, bifurcation = crossing_number(new_x_train)
 # coding = utf-8
 
 # Prepare data X_train: ndarray,(60000, 28, 28) y_train: ndarray, (60000,)
-y_val = np.zeros(20)
-y_val[0:10] = 0
-y_val[10:20] = 1
-x_val = x_real[:20:]
+y_input = np.zeros(20)
+y_input[0:10] = 0
+y_input[10:20] = 1
+# plt.imshow(x_train[0])
+x_train_2 = x_train[:20:] * (1 / 255)
 
-(x_train, y_train) = (x_val, y_val)
+# 用np定义一个90*90的矩阵，用于存放图片
+
+X_input = np.zeros((20, 90, 90))
+
+print(crossing_number(x_train_2[0]))
+
+
+def transfer2(data):
+    result = []
+    for i in range(20):
+        result.append(crossing_number(data[i]))
+    return np.array(result)
+
+
+x_input = transfer2(x_train_2)
+# plt.imshow(x_input[0])
+# plt.imshow(crossing_number(x_input[0]))
+# plt.show()
+# print(x_input.shape)
+# print(x_input[0][51])
+# plt.imshow(x_train_2[0])
+
+(x_train, y_train) = (x_input, y_input)
 
 # Build model
 model = keras.Sequential([
-    keras.layers.Flatten(input_shape=(None, 90, 90)),  # input layer
+    keras.layers.Flatten(input_shape=(90, 90)),  # input layer
     keras.layers.Dense(128, activation='relu'),  # hidden layer
-    keras.layers.Dense(10, activation='softmax')  # output layer
+    keras.layers.Dense(2, activation='softmax')  # output layer
 ])
 
 model.compile(optimizer='adam',
@@ -230,7 +258,8 @@ model.compile(optimizer='adam',
 optimizers.Adam(lr=0.1)
 
 # Train model
-model.fit(x_train, y_train, epochs=100)
+# print(x_input.shape)
+model.fit(x_input, y_input, epochs=100)
 
 # Evaluate model
 # valid_loss, valid_acc = model.evaluate(x_train, y_train, verbose=1)
@@ -239,7 +268,7 @@ model.fit(x_train, y_train, epochs=100)
 
 # Make one prediction
 class_names = ['第一个人', '第二个人']
-y_predicts = model.predict(x_train[0])
+y_predicts = model.predict(x_input[0])
 print(y_predicts[0])
 y_index = np.argmax(y_predicts[0])
 print(y_index)
