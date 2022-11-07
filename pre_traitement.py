@@ -223,6 +223,8 @@ print("y_input:")
 print(y_input[0].shape)
 # plt.imshow(x_train[0])
 x_train_2 = x_train[:20:] * (1 / 255)
+print(x_train_2.shape)
+print(x_train_2[0])
 
 # 用np定义一个90*90的矩阵，用于存放图片
 
@@ -249,7 +251,7 @@ print(x_input[0][51])
 plt.imshow(x_train_2[0])
 
 (x_train, y_train) = (x_input, y_input)
-x_train_real, x_valid, y_train_real, y_valid = train_test_split(x_train, y_train, test_size=0.2)
+# x_train_real, x_valid, y_train_real, y_valid = train_test_split(x_train, y_train, test_size=0.2)
 
 # ====================
 # Build model
@@ -269,25 +271,25 @@ model.compile(optimizer='adam',
               metrics=['accuracy'])
 
 # Train model
-model.fit(x_train_real, y_train_real, epochs=100)
+model.fit(x_train, y_train, epochs=100)
 
 # Evaluate model
-valid_loss, valid_acc = model.evaluate(x_valid, y_valid, verbose=1)
+valid_loss, valid_acc = model.evaluate(x_train, y_train, verbose=1)
 print(f"Valid loss:{valid_loss}")
 print(f"Valid accuracy:{valid_acc}")
 
 # Make one prediction
 class_names = ['First Person', 'Second Person']
-y_predicts = model.predict(x_valid)
+y_predicts = model.predict(x_train)
 y_index = np.argmax(y_predicts[0])
 y_label = class_names[y_index]
 print("Number 1 is: ", y_label)
-y_index = np.argmax(y_predicts[1])
+y_index = np.argmax(y_predicts[4])
 y_label = class_names[y_index]
-print("Number 2 is: ", y_label)
-y_index = np.argmax(y_predicts[2])
+print("Number 5 is: ", y_label)
+y_index = np.argmax(y_predicts[10])
 y_label = class_names[y_index]
-print("Number 3 is: ", y_label)
-y_index = np.argmax(y_predicts[3])
+print("Number 11 is: ", y_label)
+y_index = np.argmax(y_predicts[19])
 y_label = class_names[y_index]
-print("Number 4 is: ", y_label)
+print("Number 20 is: ", y_label)
