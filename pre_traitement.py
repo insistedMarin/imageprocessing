@@ -73,16 +73,13 @@ new_x_train = x_train[0] * (1 / 255)
 
 # print(np.shape(new_x_train))
 
-# Permettre de calculer les voisins d'un pixel situé en (x,y) dans la matrice L
-def neighbour(L, x, y):
-    nb_neighbour = 0
-    if (L[x][y] == 1):
-        for i in range(-1, 2):
-            for j in range(-1, 2):
-                nb_neighbour += L[x + i][y + j]
-        return nb_neighbour - L[x][y]
-    else:
-        return 0
+# Permettre de calculer les Crossing Number d'un pixel situé en (x,y) dans la matrice L
+def calculCN(L,x,y):
+    nb_CN = 0
+    Liste= [L[x-1][y-1],L[x][y-1],L[x+1][y-1],L[x+1][y],L[x+1][y+1],L[x][y+1],L[x-1][y+1],L[x-1][y]]
+    for i in range (len(Liste)):
+        nb_CN += abs(Liste[i]-Liste[i-1])
+    return (1/2)*nb_CN
 
 
 ###
@@ -106,13 +103,13 @@ def crossing_number(Matrice):
     bifurcation = []
     for i in range(1, height - 1):
         for j in range(1, width - 1):
-            if neighbour(Matrice, i, j) == 1:
+            if calculCN(Matrice, i, j) == 1:
                 terminaison.append([i, j])
                 L[i][j] = 1
-            elif neighbour(Matrice, i, j) == 2:
+            elif calculCN(Matrice, i, j) == 2:
                 transition.append([i, j])
                 L[i][j] = 0
-            elif neighbour(Matrice, i, j) > 2:
+            elif calculCN(Matrice, i, j) > 2:
                 bifurcation.append([i, j])
                 L[i][j] = 3
     return L
@@ -124,7 +121,7 @@ def extration_terminaison(Matrice):
     L = np.zeros((height, width))
     for i in range(1, height - 1):
         for j in range(1, width - 1):
-            if (neighbour(Matrice, i, j) == 1):
+            if (calculCN(Matrice, i, j) == 1):
                 L[i][j] = 255
     return L
 
@@ -135,7 +132,7 @@ def extration_transition(Matrice):
     L = np.zeros((height, width))
     for i in range(1, height - 1):
         for j in range(1, width - 1):
-            if (neighbour(Matrice, i, j) == 2):
+            if (calculCN(Matrice, i, j) == 2):
                 L[i][j] = 255
     return L
 
@@ -146,7 +143,7 @@ def extration_bifurcation(Matrice):
     L = np.zeros((height, width))
     for i in range(1, height - 1):
         for j in range(1, width - 1):
-            if (neighbour(Matrice, i, j) > 2):
+            if (calculCN(Matrice, i, j) > 2):
                 L[i][j] = 255
     return L
 
