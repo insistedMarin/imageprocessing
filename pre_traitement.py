@@ -153,23 +153,11 @@ def extration_bifurcation(Matrice):
     return L
 
 
-# print(np.shape(new_x_train))
-# print(crossing_number(new_x_train))
+
 # plt.imshow(crossing_number(new_x_train))
 # plt.title('CN')
 # plt.show()
-# image = x_real[0].squeeze()
-# preprocess(image)
-# image = x_real[1].squeeze()
-# preprocess(image)
-# image = x_real[20].squeeze()
-# preprocess(image)
-# print(y_real[0])
-# print(y_real[1])
-# print(y_real[20])
 
-# ====================
-# coding = utf-8
 
 # Prepare data X_train: ndarray,(60000, 28, 28) y_train: ndarray, (60000,)
 y_input = np.zeros(20)
@@ -182,7 +170,7 @@ x_train_2 = x_train[:20:] * (1 / 255)
 print(x_train_2.shape)
 print(x_train_2[0])
 
-# 用np定义一个90*90的矩阵，用于存放图片
+
 
 X_input = np.zeros((20, 90, 90))
 
