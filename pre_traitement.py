@@ -15,7 +15,7 @@ import random
 from keras import optimizers
 
 
-
+# Calcule de l'Histogramme en niveau de gris
 def calcGrayHist(I):
     h, w = I.shape[:2]
     grayHist = np.zeros([256], np.uint64)
@@ -25,7 +25,7 @@ def calcGrayHist(I):
 
     return grayHist
 
-
+# Pré-traitement de l'image
 def preprocess(image_input):
     # gussianblur kernel
     guassian = cv.GaussianBlur(image_input, (3, 3), 0)
@@ -51,7 +51,7 @@ def preprocess(image_input):
 
 
 
-
+# Permettre de transférer les images
 def transfer(data):
     result = []
     for i in range(data.shape[0]):
@@ -73,7 +73,7 @@ new_x_train = x_train[0] * (1 / 255)
 
 # print(np.shape(new_x_train))
 
-
+# Permettre de calculer les voisins d'un pixel situé en (x,y) dans la matrice L
 def neighbour(L, x, y):
     nb_neighbour = 0
     if (L[x][y] == 1):
@@ -88,13 +88,11 @@ def neighbour(L, x, y):
 ###
 # Commentaire
 # plt.imshow(x_train[0], cmap='gray')
-plt.title('skeleton')
+#plt.title('skeleton')
 
 
-# ça arrête le programme ici
 # plt.show()
 
-# plt.figure("Image")
 # plt.imshow(x_train[0], cmap='gray')
 # plt.title('skeleton')
 # plt.show()
