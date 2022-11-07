@@ -200,11 +200,6 @@ plt.imshow(x_train_2[0])
 model = keras.Sequential([
     keras.layers.Flatten(input_shape=[90, 90]),  # input layer
     keras.layers.Dense(100, activation='relu'),  # hidden layer
-    keras.layers.Dropout(0.2),
-    keras.layers.BatchNormalization(),
-    keras.layers.Dense(50, activation='relu'),  # hidden layer
-    keras.layers.Dropout(0.2),
-    keras.layers.BatchNormalization(),
     keras.layers.Dense(2, activation='softmax')  # output layer
 ])
 
